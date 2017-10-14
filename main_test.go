@@ -6,8 +6,6 @@ import (
 	"testing"
 )
 
-// +build gofuzz
-
 // 1-) Start tests for the YouFoodz implementation.
 func Test1(t *testing.T) {
 	log.Print("\n\n========== SOLUTION 1 =========\n\n\n")
