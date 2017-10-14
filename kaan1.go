@@ -12,52 +12,26 @@ var examples = []string{
 	"[a[aa[aaa],ab,ac],b,c[ca,cb,cc[cca]]]",
 	"[a,b, c ]]]]]]",
 	" ",
-	"◌́",			// fruit unicode, acute "\u0301"
+	"◌́",
 	"123]]]",
-	"\n\n",			// Newlines
-	"asd",
+	"\n\n",
 	"]]][a,b, c ]]]]]]",
-	//"",			// Crash the old solution.
+	//"asd",			// Err: Seg, nil ptr
+	//"",				// Err: Slice range
 }
 
 // Scan - the scanner structure.
 var scan struct {
-	name string		// Child name
-	depth int		// Depth
-	err string		// Error
+	name  string // Child name
+	err   string // Error
 }
 
 type node struct {
 	Name     string  `json:"name"`
-	Parent   *node   `json:"-"`		// Parent pointer - depth iteration
+	Parent   *node   `json:"-"` // Parent pointer - depth iteration
 	Children []*node `json:"children,omitempty"`
 }
 
-// Parse next rune as string
-func parseNext(v rune, node *node) {
-	v2 := string(v)
-
-	switch v2 {
-	case "[":
-		if checkName() {
-			addNode(node, 1)
-			scan.depth++
-		}
-	case "]":
-		if checkName() {
-			addNode(node, 2)
-			scan.depth--
-		}
-	case ",":
-		if checkName() {
-			addNode(node, 0)
-		}
-	default:
-		if syntax.IsWordChar(v) {
-			scan.name += string(v)		// Accept only alphanumeric (No escapes)
-		}
-	}
-}
 
 func checkName() bool {
 	if len(scan.name) > 0 {
@@ -67,28 +41,52 @@ func checkName() bool {
 	}
 }
 
-// Add a node.
-// downUpOrNext input is,
-// 	- 0 for next sibling (do nothing),
-// 	- 1 for lower level
-//  - 2 for upper level
-func addNode(curNode *node, downUpOrNext int) {
-	var newNode *node
+// Parse next rune as string
+func parseNext(v rune, node **node) {
+	v2 := string(v)
 
-	newNode = &node{}
-	newNode.Name = scan.name
-	newNode.Parent = curNode	// nest it, depth+=1
-
-	// add created newNode to Children of Parent
-	curNode.Children = append(curNode.Children, newNode)
-
-	if downUpOrNext == 1 {
-		curNode = newNode
-	} else if downUpOrNext == 2 {
-		curNode = curNode.Parent
+	switch v2 {
+	case "[":
+		if checkName() {
+			addNode(node, 1)
+		}
+	case "]":
+		if checkName() {
+			addNode(node, 2)
+		}
+	case ",":
+		if checkName() {
+			addNode(node, 0)
+		}
+	default:
+		if syntax.IsWordChar(v) {
+			scan.name += string(v) // Accept only alphanumeric (No escapes)
+		}
 	}
+}
 
-	scan.name = ""
+// Add a node.
+// downUpOrNext input:
+// 	- 0 for next sibling
+// 	- 1 for lower level		[
+//  - 2 for upper level		]
+func addNode(curNode **node, downUpOrNext int) {
+		var newNode *node
+
+		newNode = &node{}
+		newNode.Name = scan.name
+		newNode.Parent = *curNode // nest it, depth+=1
+
+		// add created newNode to Children of Parent
+	(*curNode).Children = append((*curNode).Children, newNode)
+
+		if downUpOrNext == 1 {
+			*curNode = newNode
+		} else if downUpOrNext == 2 {
+			*curNode = (*curNode).Parent
+		}
+
+		scan.name = ""
 }
 
 func parse(v string) (*node, error) {
@@ -96,15 +94,12 @@ func parse(v string) (*node, error) {
 	root.Name = ""
 	root.Children = make([]*node, 0)
 
-
-	scan.depth = 0
-
-	var currentNode = &root	// current node, start with root
+	var currentNode = &root // node pointer
 
 	for _, v := range v {
 		//curChar := string(v)
 
-		parseNext(v, currentNode)
+		parseNext(v, &currentNode)
 	}
 
 	return &root, nil
