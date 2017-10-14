@@ -1,8 +1,6 @@
-package main
+package kaanparser
 
 import (
-	"encoding/json"
-	"log"
 	"regexp/syntax"
 )
 
@@ -105,27 +103,4 @@ func parse(v string) (*node, error) {
 	return &root, nil
 }
 
-func main() {
-	log.Print("\n\n========== SOLUTION 1 =========\n\n\n")
-	for i, example := range examples {
-		result, err := parse(example)
-		if err != nil {
-			panic(err)
-		}
 
-		// Start tests for the YouFoodz implementation.
-		x, err := json.MarshalIndent(result, " ", " ")
-		if err != nil {
-			panic(err)
-		}
-		log.Printf("Example %d: %s - %s", i, example, string(x))
-
-		// Start tests for the identitii implementation.
-		//time.Sleep(3)
-		//test()
-	}
-
-	// Start tests for the identitii implementation.
-	log.Print("\n\n========== SOLUTION 2 =========\n\n\n")
-	test()
-}

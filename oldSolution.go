@@ -1,4 +1,4 @@
-package main
+package kaanparser
 
 import (
 	"encoding/json"
@@ -65,7 +65,7 @@ func parseOld(v string) (*node, error) {
 	return &root, nil
 }
 
-func test() {
+func testOld() {
 	for i, example := range examples {
 		result, err := parseOld(example)
 		if err != nil {
