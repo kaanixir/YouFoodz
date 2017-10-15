@@ -1,0 +1,7 @@
+panic: runtime error: invalid memory address or nil pointer dereference
+github.com/kaanixir/YouFoodz.addNode
+github.com/kaanixir/YouFoodz.parseNext
+github.com/kaanixir/YouFoodz.parse
+github.com/kaanixir/YouFoodz.Fuzz
+go-fuzz-dep.Main
+main.main

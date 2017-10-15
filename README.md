@@ -2,5 +2,16 @@
 Awesome parser, v2
 
 
-# To link them configure or simply run;
-go run kaan1.go oldSolution.go
+
+## Run all Go-tests
+```
+go test -run ''
+```
+
+
+## Fuzz testing for parser:
+```
+go-fuzz-build github.com/kaanixir/YouFoodz
+mkdir -p fuzzcorpus
+go-fuzz -bin=kaanparser-fuzz.zip -workdir=fuzzcorpus
+```
